@@ -25,13 +25,15 @@ cur_text = "curl 'https://seethemoney.az.gov/Reporting/AdvancedSearch/?CommiteeR
 db = SqliteDatabase('records.db')
 
 class ArizonaCandidateContribution(Model):
-    transaction_date = CharField(null=True)
+    year = CharField(null=True, max_length=255)
+    transaction_date = DateField(null=True)
     filer_name = CharField(null=True)
     amount = FloatField(null=True)
-    tran_name = CharField(null=True)
-    tran_type = CharField(null=True)
     occupation = CharField(null=True)
     employer = CharField(null=True)
+    contributor_first_name = CharField(null=True, max_length=255)
+    contributor_last_name = CharField(null=True, max_length=255)
+    contributor_type = CharField(null=True, max_length=255)
     city = CharField(null=True)
     state = CharField(null=True)
     zip = CharField(null=True)
@@ -41,13 +43,15 @@ class ArizonaCandidateContribution(Model):
         table_name = 'arizona_candidate_contributions'
 
 class ArizonaCommitteeContribution(Model):
-    transaction_date = CharField(null=True)
+    year = CharField(null=True, max_length=255)
+    transaction_date = DateField(null=True)
     filer_name = CharField(null=True)
     amount = FloatField(null=True)
-    tran_name = CharField(null=True)
-    tran_type = CharField(null=True)
     occupation = CharField(null=True)
     employer = CharField(null=True)
+    contributor_first_name = CharField(null=True, max_length=255)
+    contributor_last_name = CharField(null=True, max_length=255)
+    contributor_type = CharField(null=True, max_length=255)
     city = CharField(null=True)
     state = CharField(null=True)
     zip = CharField(null=True)
@@ -103,15 +107,16 @@ class MoneySpider(scrapy.Spider):
     def save_candidate_income(self, response):
         data = json.loads(response.text)['data']
         for row in data:
-            print(date.fromtimestamp(int(row['TransactionDate'][6:-5])).__str__())
-            print(row)
+            tran_date = date.fromtimestamp(int(row['TransactionDate'][6:-5]))
             rec = ArizonaCandidateContribution(
-                transaction_date=date.fromtimestamp(int(row['TransactionDate'][6:-5])).__str__(),
+                transaction_date=tran_date,
+                year=tran_date.year,
                 filer_name=row['FilerName'],
                 amount=row['Amount'],
-                tran_name=row['TransactionName'],
-                tran_type=row['TransactionType'],
                 occupation=row['Occupation'],
+                contributor_first_name = row['FirstName'],
+                contributor_last_name = row['LastName'],
+                contributor_type = row['TransactionType'],
                 employer=row['Employer'],
                 city=row['City'],
                 state=row['State'],
@@ -138,16 +143,17 @@ class MoneySpider(scrapy.Spider):
     def save_committee_income(self, response):
         data = json.loads(response.text)['data']
         for row in data:
-            print(date.fromtimestamp(int(row['TransactionDate'][6:-5])).__str__())
-            print(row)
+            tran_date = date.fromtimestamp(int(row['TransactionDate'][6:-5]))
             rec = ArizonaCommitteeContribution(
-                transaction_date=date.fromtimestamp(int(row['TransactionDate'][6:-5])).__str__(),
+                transaction_date=tran_date,
+                year=tran_date.year,
                 filer_name=row['FilerName'],
                 amount=row['Amount'],
-                tran_name=row['TransactionName'],
-                tran_type=row['TransactionType'],
                 occupation=row['Occupation'],
                 employer=row['Employer'],
+                contributor_first_name = row['FirstName'],
+                contributor_last_name = row['LastName'],
+                contributor_type = row['TransactionType'],
                 city=row['City'],
                 state=row['State'],
                 zip=row['ZipCode']
