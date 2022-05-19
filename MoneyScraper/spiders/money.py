@@ -59,6 +59,7 @@ class ArizonaCommitteeContribution(Model):
 db.connect()
 db.create_tables([ArizonaCandidateContribution,ArizonaCommitteeContribution])
 
+
 class MoneySpider(scrapy.Spider):
     name = 'money'
     filter_types = [130, 131, 132, 96]
